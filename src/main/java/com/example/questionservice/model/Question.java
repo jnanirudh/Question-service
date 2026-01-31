@@ -1,5 +1,4 @@
-package com.example.questionservice.model; // Ensure this matches your folder path
-
+package com.example.questionservice.model;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
