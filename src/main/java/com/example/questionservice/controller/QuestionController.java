@@ -37,6 +37,11 @@ public class QuestionController {
         return questionService.getQuestionsForQuiz(subject, numQ);
     }
 
+    @DeleteMapping("delete/{id}")
+    public ResponseEntity<String> deleteQuestion(@PathVariable Integer id) {
+        return questionService.deleteQuestion(id);
+    }
+
 // Get QuestionWrappers (DTOs) for the student view
     @PostMapping("getQuestionsFromId")
     public ResponseEntity<List<QuestionWrapper>> getQuestionsFromId(@RequestBody List<Integer> questionIds) {

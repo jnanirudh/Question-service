@@ -28,7 +28,17 @@ public class QuestionService {
     }
 
     public List<Question> getQuestionsBySubject(String subject) {
+
         return questionDao.findBySubject(subject);
+    }
+
+    public ResponseEntity<String> deleteQuestion(Integer id) {
+        try {
+            questionDao.deleteById(id);
+            return new ResponseEntity<>("Deleted Successfully", HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Question ID not found", HttpStatus.NOT_FOUND);
+        }
     }
 
 
