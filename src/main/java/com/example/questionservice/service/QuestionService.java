@@ -48,7 +48,6 @@ public class QuestionService {
         return new ResponseEntity<>(questions, HttpStatus.OK);
     }
 
-
 // Convert Question IDs into QuestionWrappers (DTO) for the Student View
     public ResponseEntity<List<QuestionWrapper>> getQuestionsFromId(List<Integer> questionIds) {
         List<QuestionWrapper> wrappers = new ArrayList<>();
