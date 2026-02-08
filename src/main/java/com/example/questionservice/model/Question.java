@@ -5,8 +5,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.Data;
 
-@Entity // This tells Hibernate to create a table in MySQL
-@Data   // This generates Getters and Setters automatically (from Lombok)
+@Entity
+@Data   // Generates Getters and Setters automatically from Lombok
 public class Question {
 
     @Id

@@ -19,27 +19,28 @@ public class QuestionController {
     @Autowired
     QuestionService questionService;
 
+// Show all questions
     @GetMapping
     public ResponseEntity<List<Question>> getAllQuestions(){
         return questionService.getAllQuestions();
     }
-
-    // Add a new question to MySQL
+// Add a new questions to DB
+    @PostMapping
     public ResponseEntity<String> addQuestion(@RequestBody Question question){
-        String response = questionService.addQuestion(question); // Gets "Success"
+        String response = questionService.addQuestion(question);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
+// Delete a Questions
+    @DeleteMapping("delete")
+    public ResponseEntity<String> deleteQuestion(@RequestParam Integer id) {
+        return questionService.deleteQuestion(id);
+    }
 
-
+// Create a Quiz
     @GetMapping("generate")
     public ResponseEntity<List<Integer>> getQuestionsForQuiz(
             @RequestParam String subject, @RequestParam Integer numQ) {
         return questionService.getQuestionsForQuiz(subject, numQ);
-    }
-
-    @DeleteMapping("delete/{id}")
-    public ResponseEntity<String> deleteQuestion(@PathVariable Integer id) {
-        return questionService.deleteQuestion(id);
     }
 
 // Get QuestionWrappers (DTOs) for the student view
