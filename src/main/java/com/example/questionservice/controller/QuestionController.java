@@ -1,57 +1,69 @@
 package com.example.questionservice.controller;
 
+import com.example.questionservice.model.ApiResponse;
 import com.example.questionservice.model.Question;
-import com.example.questionservice.model.Response;
 import com.example.questionservice.model.QuestionWrapper;
+import com.example.questionservice.model.Response;
 import com.example.questionservice.service.QuestionService;
-//import jakarta.websocket.server.PathParam;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("questions")
+@RequestMapping("/question")
 public class QuestionController {
 
     @Autowired
     QuestionService questionService;
 
-// Show all questions
-    @GetMapping
-    public ResponseEntity<List<Question>> getAllQuestions(){
+    // GET /question/allQuestions
+    @GetMapping("/allQuestions")
+    public ResponseEntity<ApiResponse<List<Question>>> getAllQuestions() {
         return questionService.getAllQuestions();
     }
-// Add a new questions to DB
-    @PostMapping
-    public ResponseEntity<String> addQuestion(@RequestBody Question question){
-        String response = questionService.addQuestion(question);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+
+    // POST /question/add
+    @PostMapping("/add")
+    public ResponseEntity<ApiResponse<String>> addQuestion(
+            @RequestBody Question question) {
+        return questionService.addQuestion(question);
     }
-// Delete a Questions
-    @DeleteMapping("delete")
-    public ResponseEntity<String> deleteQuestion(@RequestParam Integer id) {
+
+    // DELETE /question/delete/{id}
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<ApiResponse<String>> deleteQuestion(
+            @PathVariable Integer id) {
         return questionService.deleteQuestion(id);
     }
 
-// Create a Quiz
-    @GetMapping("generate")
-    public ResponseEntity<List<Integer>> getQuestionsForQuiz(
-            @RequestParam String subject, @RequestParam Integer numQ) {
+    // GET /question/subject/{subject}
+    @GetMapping("/subject/{subject}")
+    public ResponseEntity<ApiResponse<List<Question>>> getQuestionsBySubject(
+            @PathVariable String subject) {
+        return questionService.getQuestionsBySubject(subject);
+    }
+
+    // GET /question/generate?subject=Java&numQ=5
+    @GetMapping("/generate")
+    public ResponseEntity<ApiResponse<List<Integer>>> getQuestionsForQuiz(
+            @RequestParam String subject,
+            @RequestParam Integer numQ) {
         return questionService.getQuestionsForQuiz(subject, numQ);
     }
 
-// Get QuestionWrappers (DTOs) for the student view
-    @PostMapping("getQuestionsFromId")
-    public ResponseEntity<List<QuestionWrapper>> getQuestionsFromId(@RequestBody List<Integer> questionIds) {
+    // POST /question/getQuestions
+    @PostMapping("/getQuestions")
+    public ResponseEntity<ApiResponse<List<QuestionWrapper>>> getQuestionsFromId(
+            @RequestBody List<Integer> questionIds) {
         return questionService.getQuestionsFromId(questionIds);
     }
 
-// For Report Service - Calculate the final score
-    @PostMapping("getScore")
-    public ResponseEntity<Integer> getScore(@RequestBody List<Response> responses) {
+    // POST /question/getScore
+    @PostMapping("/getScore")
+    public ResponseEntity<ApiResponse<Integer>> getScore(
+            @RequestBody List<Response> responses) {
         return questionService.getScore(responses);
     }
 }
