@@ -1,6 +1,7 @@
 package com.example.questionservice.service;
 
 import com.example.questionservice.dao.QuestionDao;
+import com.example.questionservice.model.ApiResponse;
 import com.example.questionservice.model.Question;
 import com.example.questionservice.model.QuestionWrapper;
 import com.example.questionservice.model.Response;
@@ -18,65 +19,84 @@ public class QuestionService {
     @Autowired
     QuestionDao questionDao;
 
-// List all questions in the db
-    public ResponseEntity<List<Question>> getAllQuestions() {
-        return new ResponseEntity<>(questionDao.findAll(), HttpStatus.OK);
+    // List all questions in the db
+    public ResponseEntity<ApiResponse<List<Question>>> getAllQuestions() {
+        List<Question> questions = questionDao.findAll();
+        return ResponseEntity.ok(
+                new ApiResponse<>("Suscess", "Questions fetched successfully", questions)
+        );
     }
-// Add more questions
-    public String addQuestion(Question question) {
+
+    // Add more questions
+    public ResponseEntity<ApiResponse<String>> addQuestion(Question question) {
         questionDao.save(question);
-        return "Success";
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new ApiResponse<>("success", "Question added successfully", null));
     }
-// Delete question
-    public ResponseEntity<String> deleteQuestion(Integer id) {
+
+    // Delete question
+    public ResponseEntity<ApiResponse<String>> deleteQuestion(Integer id) {
         if (questionDao.existsById(id)) {
             questionDao.deleteById(id);
-            return new ResponseEntity<>("Deleted Successfully", HttpStatus.OK);
+            return ResponseEntity.ok(
+                    new ApiResponse<>("success", "Deleted successfully", null)
+            );
         } else {
-            return new ResponseEntity<>("Question ID " + id + " not found", HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ApiResponse<>("error", "Question ID " + id + " not found", null));
         }
     }
 
-// Get all questions (view all subject questions)
-    public List<Question> getQuestionsBySubject(String subject) {
-        return questionDao.findBySubject(subject);
+    // Get questions by subject
+    public ResponseEntity<ApiResponse<List<Question>>> getQuestionsBySubject(String subject) {
+        List<Question> questions = questionDao.findBySubject(subject);
+        return ResponseEntity.ok(
+                new ApiResponse<>("success", "Questions for subject fetched", questions)
+        );
     }
 
-// Get random questions (Quiz creation)
-    public ResponseEntity<List<Integer>> getQuestionsForQuiz(String subject, Integer numQ) {
+    // Get random question IDs for quiz creation
+    public ResponseEntity<ApiResponse<List<Integer>>> getQuestionsForQuiz(String subject, Integer numQ) {
         List<Integer> questions = questionDao.findRandomQuestionsBySubject(subject, numQ);
-        return new ResponseEntity<>(questions, HttpStatus.OK);
+        return ResponseEntity.ok(
+                new ApiResponse<>("success", "Quiz question IDs ready", questions)
+        );
     }
 
-// Convert Question IDs into QuestionWrappers (DTO) for the Student View
-    public ResponseEntity<List<QuestionWrapper>> getQuestionsFromId(List<Integer> questionIds) {
+    // Convert IDs to QuestionWrappers (student view — no correct answer exposed)
+    public ResponseEntity<ApiResponse<List<QuestionWrapper>>> getQuestionsFromId(List<Integer> questionIds) {
         List<QuestionWrapper> wrappers = new ArrayList<>();
 
         for (Integer id : questionIds) {
             questionDao.findById(id).ifPresent(question -> {
-                QuestionWrapper wrapper = new QuestionWrapper(
+                wrappers.add(new QuestionWrapper(
                         question.getId(),
                         question.getQuestionTitle(),
                         question.getOption1(),
                         question.getOption2(),
                         question.getOption3(),
                         question.getOption4()
-                );
-                wrappers.add(wrapper);
+                ));
             });
         }
-        return new ResponseEntity<>(wrappers, HttpStatus.OK);
+        return ResponseEntity.ok(
+                new ApiResponse<>("success", "Question wrappers fetched", wrappers)
+        );
     }
 
-// Calculate the score
-    public ResponseEntity<Integer> getScore(List<Response> responses) {
-        int right = 0;
+    // Calculate score
+    public ResponseEntity<ApiResponse<Integer>> getScore(List<Response> responses) {
+        int[] right = {0};
+
         for (Response response : responses) {
-            Question question = questionDao.findById(response.getId()).get();
-            if (response.getResponse().equals(question.getRightAnswer())) {
-                right++;
-            }
+            questionDao.findById(response.getId()).ifPresent(question -> {
+                if (response.getResponse().equals(question.getRightAnswer())) {
+                    right[0]++;
+                }
+            });
         }
-        return new ResponseEntity<>(right, HttpStatus.OK);
+        return ResponseEntity.ok(
+                new ApiResponse<>("success", "Score calculated", right[0])
+        );
     }
 }
