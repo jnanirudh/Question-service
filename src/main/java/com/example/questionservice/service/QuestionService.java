@@ -23,7 +23,7 @@ public class QuestionService {
     public ResponseEntity<ApiResponse<List<Question>>> getAllQuestions() {
         List<Question> questions = questionDao.findAll();
         return ResponseEntity.ok(
-                new ApiResponse<>("Suscess", "Questions fetched successfully", questions)
+                new ApiResponse<>("success", "Questions fetched successfully", questions)
         );
     }
 
